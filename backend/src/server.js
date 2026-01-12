@@ -13,33 +13,30 @@ import sessionRoutes from "./routes/sessionRoute.js";
 
 const app = express();
 
-const __dirname = path.resolve();
-
 app.use(express.json());
 
-app.use(cors({ origin: ENV.CLIENT_URL, credentials: true, methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"] , allowedHeaders: ["Content-Type", "Authorization"] }));
-app.use(clerkMiddleware()); 
+app.use(
+  cors({
+    origin: ENV.CLIENT_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
-app.use("/api/chat", chatRoutes);
-app.use("/api/sessions", sessionRoutes);
+app.use("/api/chat", requireAuth(), chatRoutes);
+app.use("/api/sessions", requireAuth(), sessionRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ msg: "api is up and running" });
 });
 
-app.get("/", (req, res)=> {
-  res.status(200).json({msg: "i am live"});
+app.get("/", (req, res) => {
+  res.status(200).json({ msg: "i am live" });
 });
 
 
-if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("/{*any}", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
 
 const startServer = async () => {
   try {
