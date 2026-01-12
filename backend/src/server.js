@@ -28,6 +28,10 @@ app.get("/health", (req, res) => {
   res.status(200).json({ msg: "api is up and running" });
 });
 
+app.get("/", (req, res)=> {
+  res.status(200).json({msg: "i am live"});
+});
+
 
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
